@@ -4,18 +4,27 @@ class Animal():
     def __init__(
             self,
             name: str,
-            health: int = 100
+            health: int = 100,
     ) -> None:
         self.name = name
-        self.health = health
+        self._health = 0
         self.hidden = False
 
         Animal.alive.append(self)
+        self._health = 0
+        self.health = health
 
-    def take_damage(self, damage: int) -> None:
-        self.health -= damage
-        if self.health <= 0:
-            Animal.alive.remove(self)
+    @property
+    def health(self) -> int:
+        return self._health
+
+    @health.setter
+    def health(self, value: int) -> None:
+        self._health = value
+
+        if self._health <= 0:
+            if self in Animal.alive:
+                Animal.alive.remove(self)
 
     def __repr__(self) -> str:
         return (f"{{Name: {self.name}, "
@@ -29,10 +38,6 @@ class Herbivore(Animal):
 
 
 class Carnivore(Animal):
-    def bite(self, other: "Herbivore") -> None:
-        if (
-            other in Animal.alive
-            and isinstance(other, Herbivore)
-            and not other.hidden
-        ):
-            other.take_damage(50)
+    def bite(self, other: Animal) -> None:
+        if isinstance(other, Herbivore) and not other.hidden:
+            other.health -= 50
